@@ -827,6 +827,67 @@ static void RemoveUsedItem(void)
     }
 }
 
+// Repel items in order of preference when offering to reuse one (cheapest first)
+static const u16 sRepelItems[] =
+{
+    ITEM_REPEL,
+    ITEM_SUPER_REPEL,
+    ITEM_MAX_REPEL,
+};
+
+static bool8 IsRepelItem(u16 item)
+{
+    u8 i;
+
+    for (i = 0; i < ARRAY_COUNT(sRepelItems); i++)
+    {
+        if (sRepelItems[i] == item)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+// Special: when a Repel wears off, find a Repel the player still has in the bag.
+// Prefers the same kind that was used last. Sets gSpecialVar_ItemId and gStringVar1
+// to the item found, and returns that item (ITEM_NONE if the bag has no Repels).
+u16 Special_GetRepelToReuse(void)
+{
+    u8 i;
+    u16 item = VarGet(VAR_REPEL_LAST_ITEM);
+
+    if (!IsRepelItem(item) || !CheckBagHasItem(item, 1))
+    {
+        item = ITEM_NONE;
+        for (i = 0; i < ARRAY_COUNT(sRepelItems); i++)
+        {
+            if (CheckBagHasItem(sRepelItems[i], 1))
+            {
+                item = sRepelItems[i];
+                break;
+            }
+        }
+    }
+
+    gSpecialVar_ItemId = item;
+    if (item != ITEM_NONE)
+        CopyItemName(item, gStringVar1);
+    return item;
+}
+
+// Special: uses the Repel chosen by Special_GetRepelToReuse, starting a new repel period.
+u16 Special_UseRepelToReuse(void)
+{
+    u16 item = gSpecialVar_ItemId;
+
+    if (IsRepelItem(item) && RemoveBagItem(item, 1))
+    {
+        VarSet(VAR_REPEL_STEP_COUNT, GetItemHoldEffectParam(item));
+        VarSet(VAR_REPEL_LAST_ITEM, item);
+        CopyItemName(item, gStringVar1);
+    }
+    return 0;
+}
+
 void ItemUseOutOfBattle_Repel(u8 taskId)
 {
     if (VarGet(VAR_REPEL_STEP_COUNT) == 0)
@@ -854,6 +915,7 @@ static void Task_UseRepel(u8 taskId)
     if (!IsSEPlaying())
     {
         VarSet(VAR_REPEL_STEP_COUNT, GetItemHoldEffectParam(gSpecialVar_ItemId));
+        VarSet(VAR_REPEL_LAST_ITEM, gSpecialVar_ItemId);
         RemoveUsedItem();
         if (CurrentBattlePyramidLocation() == PYRAMID_LOCATION_NONE)
             DisplayItemMessage(taskId, FONT_NORMAL, gStringVar4, CloseItemMessage);

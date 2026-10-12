@@ -245,6 +245,7 @@ static void PrintNotEggInfo(void);
 static void PrintEggInfo(void);
 static void PrintGenderSymbol(struct Pokemon *, u16);
 static void PrintPageNamesAndStats(void);
+static u8 GetNatureStatTextColorId(u8 statIndex);
 static void PutPageWindowTilemaps(u8);
 static void ClearPageWindowTilemaps(u8);
 static void RemoveWindowByIndex(u8);
@@ -719,8 +720,13 @@ static const u8 sTextColors[][3] =
     {0, 1, 2},
     {0, 3, 4},
     {0, 5, 6},
-    {0, 7, 8}
+    {0, 7, 8},
+    {0, 5, 4}, // COLOR_NATURE_UP: boosted stat label (red)
+    {0, 8, 4}, // COLOR_NATURE_DOWN: lowered stat label (blue)
 };
+
+#define COLOR_NATURE_UP   15
+#define COLOR_NATURE_DOWN 16
 
 static const u8 sButtons_Gfx[][4 * TILE_SIZE_4BPP] = {
     INCGFX_U8("graphics/summary_screen/a_button.png", ".4bpp"),
@@ -2829,6 +2835,22 @@ static void PrintAOrBButtonIcon(u8 windowId, bool8 bButton, u32 x)
     BlitBitmapToWindow(windowId, button, x, 0, 16, 16);
 }
 
+// Stat labels are tinted by the Pokémon's nature: red if boosted, blue if lowered.
+static u8 GetNatureStatTextColorId(u8 statIndex)
+{
+    s8 modifier;
+
+    if (statIndex <= STAT_HP || statIndex > NUM_NATURE_STATS)
+        return 1;
+
+    modifier = gNatureStatTable[sMonSummaryScreen->summary.nature][statIndex - 1];
+    if (modifier > 0)
+        return COLOR_NATURE_UP;
+    if (modifier < 0)
+        return COLOR_NATURE_DOWN;
+    return 1;
+}
+
 static void PrintPageNamesAndStats(void)
 {
     int stringXPos;
@@ -2866,15 +2888,15 @@ static void PrintPageNamesAndStats(void)
     statsXPos = 6 + GetStringCenterAlignXOffset(FONT_NORMAL, gText_HP4, 42);
     PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_LEFT, gText_HP4, statsXPos, 1, 0, 1);
     statsXPos = 6 + GetStringCenterAlignXOffset(FONT_NORMAL, gText_Attack3, 42);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_LEFT, gText_Attack3, statsXPos, 17, 0, 1);
+    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_LEFT, gText_Attack3, statsXPos, 17, 0, GetNatureStatTextColorId(STAT_ATK));
     statsXPos = 6 + GetStringCenterAlignXOffset(FONT_NORMAL, gText_Defense3, 42);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_LEFT, gText_Defense3, statsXPos, 33, 0, 1);
+    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_LEFT, gText_Defense3, statsXPos, 33, 0, GetNatureStatTextColorId(STAT_DEF));
     statsXPos = 2 + GetStringCenterAlignXOffset(FONT_NORMAL, gText_SpAtk4, 36);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_RIGHT, gText_SpAtk4, statsXPos, 1, 0, 1);
+    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_RIGHT, gText_SpAtk4, statsXPos, 1, 0, GetNatureStatTextColorId(STAT_SPATK));
     statsXPos = 2 + GetStringCenterAlignXOffset(FONT_NORMAL, gText_SpDef4, 36);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_RIGHT, gText_SpDef4, statsXPos, 17, 0, 1);
+    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_RIGHT, gText_SpDef4, statsXPos, 17, 0, GetNatureStatTextColorId(STAT_SPDEF));
     statsXPos = 2 + GetStringCenterAlignXOffset(FONT_NORMAL, gText_Speed2, 36);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_RIGHT, gText_Speed2, statsXPos, 33, 0, 1);
+    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_RIGHT, gText_Speed2, statsXPos, 33, 0, GetNatureStatTextColorId(STAT_SPEED));
     PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_EXP, gText_ExpPoints, 6, 1, 0, 1);
     PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_EXP, gText_NextLv, 6, 17, 0, 1);
     PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATUS, gText_Status, 2, 1, 0, 1);

@@ -66,6 +66,8 @@ BattleScript_SuccessBallThrow::
 	incrementgamestat GAME_STAT_POKEMON_CAPTURES
 BattleScript_PrintCaughtMonInfo::
 	printstring STRINGID_GOTCHAPKMNCAUGHTPLAYER
+	@ Modern (Gen 6+) behavior: party Pokemon that battled gain EXP for a capture, as if the wild Pokemon was defeated
+	getexp BS_TARGET
 	trysetcaughtmondexflags BattleScript_TryNicknameCaughtMon
 	printstring STRINGID_PKMNDATAADDEDTODEX
 	waitstate

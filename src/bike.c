@@ -892,7 +892,7 @@ static u8 GetBikeCollisionAt(struct ObjectEvent *objectEvent, s16 x, s16 y, u8 d
 
 bool8 RS_IsRunningDisallowed(u8 tile)
 {
-    if (IsRunningDisallowedByMetatile(tile) != FALSE || gMapHeader.mapType == MAP_TYPE_INDOOR)
+    if (IsRunningDisallowedByMetatile(tile) != FALSE)
         return TRUE;
     else
         return FALSE;
@@ -1055,7 +1055,9 @@ void Bike_HandleBumpySlopeJump(void)
 
 bool32 IsRunningDisallowed(u8 metatile)
 {
-    if (!gMapHeader.allowRunning || IsRunningDisallowedByMetatile(metatile) == TRUE)
+    // Running is allowed inside buildings and houses (indoor maps) as a QoL change.
+    // The per-map allow_running flag only restricts running on non-indoor maps.
+    if ((!gMapHeader.allowRunning && gMapHeader.mapType != MAP_TYPE_INDOOR) || IsRunningDisallowedByMetatile(metatile) == TRUE)
         return TRUE;
     else
         return FALSE;
