@@ -17,6 +17,8 @@ void ItemUseOutOfBattle_PPUp(u8 taskId);
 void ItemUseOutOfBattle_RareCandy(u8 taskId);
 void ItemUseOutOfBattle_TMHM(u8 taskId);
 void ItemUseOutOfBattle_Repel(u8 taskId);
+u16 Special_GetRepelToReuse(void);
+u16 Special_UseRepelToReuse(void);
 void ItemUseOutOfBattle_EscapeRope(u8 taskId);
 void ItemUseOutOfBattle_BlackWhiteFlute(u8 taskId);
 void ItemUseOutOfBattle_EvolutionStone(u8 taskId);
