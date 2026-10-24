@@ -45,3 +45,6 @@ prefabs.json
 /pokeemerald-*.png
 /pokeemerald_modern-*.png
 .porydaw/
+
+# autoplay bot: generated from the ROM build, never commit it
+tools/spectator/data/symbols.lua
