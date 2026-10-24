@@ -48,3 +48,7 @@ prefabs.json
 
 # autoplay bot: generated from the ROM build, never commit it
 tools/spectator/data/symbols.lua
+
+# python bytecode
+__pycache__/
+*.pyc
